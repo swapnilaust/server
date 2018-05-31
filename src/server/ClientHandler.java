@@ -48,6 +48,14 @@ public class ClientHandler extends Thread{
         writer.close();
     }
     
+    void addFrinedRequest( String friendName )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("friend_request.txt", true));
+        writer.write( "0:" + userName + ":" + friendName );
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
+    
     void sendConfirmation( String name ) throws IOException{
         BufferedWriter writer = new BufferedWriter(new FileWriter("notifications.txt", true));
         writer.write( "0:" + name + ":" + userName + " Accecpted Your Friend Request."  );
@@ -94,6 +102,9 @@ public class ClientHandler extends Thread{
                         addFrineds( name );
                         outToClient.writeBytes("You are now friend with " + name + '\n' );
                         sendConfirmation( name );
+                    }else if( "Send Friend Request".equals(operation) ){
+                        String name = inFromClient.readLine();
+                        addFrinedRequest( name );
                     }
 
                     //StringTokenizer tokens = new StringTokenizer( operation, ":" );
