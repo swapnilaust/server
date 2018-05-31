@@ -7,7 +7,9 @@ package server;
 
 import static server.Server.clients;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -37,6 +39,22 @@ public class ClientHandler extends Thread{
         this.clientName = clientName;
         this.userName = userName;
     }
+    
+    void addFrineds( String friendName )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("friends_list.txt", true));
+        writer.write( userName + ":" + friendName );
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
+    
+    void sendConfirmation( String name ) throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("notifications.txt", true));
+        writer.write( "0:" + name + ":" + userName + " Accecpted Your Friend Request."  );
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
 
     
     public void run(){
@@ -52,11 +70,12 @@ public class ClientHandler extends Thread{
 
                     String operation = inFromClient.readLine();
                     
+                  
+                    
                     if( "Online User Lists".equals(operation)){
-                        DataOutputStream outTo = new DataOutputStream(connectionSocket.getOutputStream() );
-                        outTo.writeBytes("Online User Lists" + '\n' );
                         
-                        
+                        outToClient.writeBytes("Online User Lists" + '\n' );
+
                          ArrayList<String> allUsers = new ArrayList<String>();
                         for( ClientHandler i: clients ){
                             String names =  "Name : " + i.clientName + ", UserName : " + i.userName ;
@@ -68,6 +87,13 @@ public class ClientHandler extends Thread{
                         
                         objectOutput.writeObject(allUsers);
                         
+                    }else if("Accecpt Friend Request".equals(operation) ){
+                        System.out.println("asche balsal");
+                        String name = inFromClient.readLine();
+                        System.out.println("name " + name);
+                        addFrineds( name );
+                        outToClient.writeBytes("You are now friend with " + name + '\n' );
+                        sendConfirmation( name );
                     }
 
                     //StringTokenizer tokens = new StringTokenizer( operation, ":" );

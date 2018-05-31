@@ -30,10 +30,20 @@ public class FriendRequestMessageHandler extends Thread{
         this.operations = operations;
     }
     
-    public void rewrite( ArrayList<String> allMsg )throws IOException{
+    public void rewriteFriendRequest( ArrayList<String> allMsg )throws IOException{
         BufferedWriter writer = new BufferedWriter(new FileWriter("friend_request.txt", false));
         for( String i: allMsg ){
             System.out.println(i);
+            writer.write( i );
+            writer.newLine();
+        }
+        writer.flush();
+        writer.close();
+    }
+    
+    public void rewriteNotification( ArrayList<String> allMsg )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("notifications.txt", false));
+        for( String i: allMsg ){
             writer.write( i );
             writer.newLine();
         }
@@ -46,6 +56,9 @@ public class FriendRequestMessageHandler extends Thread{
             while( true ){
                 boolean rw = false;
                 try {
+                    
+                    //friend request
+                    
                     ArrayList<String> allMsg = new ArrayList<String>();
                     try {
                         
@@ -93,8 +106,48 @@ public class FriendRequestMessageHandler extends Thread{
                         Logger.getLogger(FriendRequestMessageHandler.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     if( rw == true ){
-                        rewrite( allMsg );
+                        rewriteFriendRequest( allMsg );
                     }
+                    
+                    //notifications
+                    ArrayList<String> allNotification = new ArrayList<String>();
+                    rw = false;
+                    FileReader inputFile = null;
+                    inputFile = new FileReader("notifications.txt");
+                    Scanner parser = new Scanner(inputFile);
+                    while (parser.hasNextLine()){
+                        String line = parser.nextLine();
+                        if( "".equals(line) )continue;
+                        
+                        StringTokenizer tokens = new StringTokenizer( line, ":" );
+                            
+                        String type = tokens.nextToken();
+                        
+                        String to = tokens.nextToken();
+                        
+                        String notification = tokens.nextToken();
+                        
+                        if( "0".equals(type) ){
+                            for( ClientHandler i: clients ){
+                                    if( i.userName.equals(to) ){
+                                        type = "1";
+                                        try {
+                                            DataOutputStream outToClient = new DataOutputStream(i.connectionSocket.getOutputStream() );
+                                            outToClient.writeBytes("Notifications: " + notification + '\n' );
+                                        } catch (IOException ex) {
+                                            Logger.getLogger(FriendRequestMessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        rw = true;
+                                    }
+                                }
+                        }
+                        allNotification.add(type + ":" + to + ":" + notification );
+                    }
+                    
+                    if( rw == true ){
+                        rewriteNotification( allNotification );
+                    }
+                        
                     
                 } catch (IOException ex) {
                     Logger.getLogger(FriendRequestMessageHandler.class.getName()).log(Level.SEVERE, null, ex);
