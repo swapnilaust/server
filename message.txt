@@ -1,7 +1,4 @@
-1:swapnil:himel:hello brother!
-1:swapnil:himel:hello balsal! asbi kokhon
-1:swapnil:himel:valo acish
-1:himel:swapnil:valo nai
-1:himel:swapnil:kokhon asbi
-1:swapnil:himel:thik nai
-1:himel:swapnil:asle phn dis
+1:swapnil:himel:hello brothers!
+1:swapnil:aurpon:hello brothers!
+1:swapnil:himel:koi bal!
+1:swapnil:himel:koi bal!

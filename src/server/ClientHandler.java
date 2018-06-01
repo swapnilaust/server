@@ -66,11 +66,16 @@ public class ClientHandler extends Thread{
     
     void sendMessage( String name, String msg )throws IOException{
         BufferedWriter writer = new BufferedWriter(new FileWriter("message.txt", true));
-        writer.write( "0:" + userName + ":" + name + ":" + msg  );
-        writer.newLine();
+        StringTokenizer tokens = new StringTokenizer(name,":");
+        while (tokens.hasMoreTokens()) {
+            String next = tokens.nextToken();
+            writer.write( "0:" + userName + ":" + next + ":" + msg  );
+            writer.newLine(); 
+        } 
         writer.flush();
         writer.close();
     }
+    
 
     
     public void run(){
@@ -134,6 +139,17 @@ public class ClientHandler extends Thread{
                         sendMessage( user, msg );
                         
                         outToClient.writeBytes("Message has been sent."  + '\n' );
+                        
+                    }else if( "Multicast".equals(operation) ){
+                        
+                        String user = inFromClient.readLine();
+                        
+                        String msg = inFromClient.readLine();
+                        
+                        sendMessage( user, msg );
+                        
+                        outToClient.writeBytes("Message has been sent."  + '\n' );
+   
                     }
 
                 }
