@@ -33,7 +33,9 @@ public class LogInHandler extends Thread{
     }
     
     boolean validData( String userName, String password ){
+        
        FileReader inputFile = null;
+       
         try {
             inputFile = new FileReader("accounts.txt");
             
@@ -52,10 +54,12 @@ public class LogInHandler extends Thread{
                 String pass = tokens.nextToken();
                 
                 if( (uname == null ? userName == null : uname.equals(userName)) && pass.equals(password) ){
+                    
                     return true;
                 }                
             }
             return false;
+            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(LogInHandler.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -65,11 +69,14 @@ public class LogInHandler extends Thread{
                 Logger.getLogger(LogInHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
         return false;
     }
     
     boolean validData( String userName ){
+        
         FileReader inputFile = null;
+        
         try {
             inputFile = new FileReader("accounts.txt");
             
@@ -81,19 +88,18 @@ public class LogInHandler extends Thread{
                 
                 System.out.println("all data " + line );
                 
-                if( "".equals(line) ){
-                    continue;
-                }
+                if( "".equals(line) ) continue;
 
                 StringTokenizer tokens = new StringTokenizer( line, ":" );
                         
                 String uname = tokens.nextToken();
                 
-                if( (uname == null ? userName == null : uname.equals(userName)) ){
-                    return true;
-                }                
+                if( (uname == null ? userName == null : uname.equals(userName)) ) return true;
+                                
             }
+            
             return false;
+            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(LogInHandler.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -103,12 +109,16 @@ public class LogInHandler extends Thread{
                 Logger.getLogger(LogInHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
         return false;
     }
     
     String getName(String userName ){
+        
         String name = "";
+        
         FileReader inputFile = null;
+        
         try {
             inputFile = new FileReader("accounts.txt");
             
@@ -127,7 +137,9 @@ public class LogInHandler extends Thread{
                 StringTokenizer tokens = new StringTokenizer( line, ":" );
                         
                 String uname = tokens.nextToken();
+                
                 String pass = tokens.nextToken();
+                
                 name = tokens.nextToken();
                 
                 if( uname == null ? userName == null : uname.equals(userName) ){
@@ -207,7 +219,9 @@ public class LogInHandler extends Thread{
                 DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream() );
                 
                 if( validData( userName ) ){
+                    
                     outToClient.writeBytes("failed" +  '\n' );
+                    
                 }else{
                     
                     addAccounts(name, userName, password );

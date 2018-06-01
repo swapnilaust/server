@@ -24,8 +24,6 @@ public class Server {
     
     public static ArrayList<ClientHandler> clients =new ArrayList<ClientHandler>();
     
-    public static int totalClient = 0;
-    
     public static void main(String[] args) {
         try {
             // TODO code application logic here
@@ -44,14 +42,6 @@ public class Server {
                 LogInHandler newlogIn = new LogInHandler(connectionSocket);
                 
                 newlogIn.start();
-                
-                //ClientHandler newClient = new ClientHandler( connectionSocket, "client" + totalClient );
-                
-                //clients.add( newClient );
-                
-                //totalClient++;
-                
-                //newClient.start();
 
             }
         } catch (IOException ex) {
