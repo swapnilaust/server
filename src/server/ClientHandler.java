@@ -63,6 +63,14 @@ public class ClientHandler extends Thread{
         writer.flush();
         writer.close();
     }
+    
+    void sendMessage( String name, String msg )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("message.txt", true));
+        writer.write( "0:" + userName + ":" + name + ":" + msg  );
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
 
     
     public void run(){
@@ -105,6 +113,11 @@ public class ClientHandler extends Thread{
                     }else if( "Send Friend Request".equals(operation) ){
                         String name = inFromClient.readLine();
                         addFrinedRequest( name );
+                    }else if( "Unicast".equals(operation) ){
+                        String user = inFromClient.readLine();
+                        String msg = inFromClient.readLine();
+                        sendMessage( user, msg );
+                        outToClient.writeBytes("Message has been sent."  + '\n' );
                     }
 
                     //StringTokenizer tokens = new StringTokenizer( operation, ":" );

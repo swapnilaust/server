@@ -30,7 +30,7 @@ public class Server {
         try {
             // TODO code application logic here
             
-            FriendRequestMessageHandler obj = new FriendRequestMessageHandler(1);
+            FriendRequestMessageHandler obj = new FriendRequestMessageHandler();
             
             obj.start();
 
