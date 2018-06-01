@@ -85,17 +85,19 @@ public class ClientHandler extends Thread{
                     BufferedReader inFromClient = new BufferedReader( new InputStreamReader(connectionSocket.getInputStream()));
 
                     String operation = inFromClient.readLine();
-                    
-                  
-                    
+
                     if( "Online User Lists".equals(operation)){
                         
                         outToClient.writeBytes("Online User Lists" + '\n' );
 
                          ArrayList<String> allUsers = new ArrayList<String>();
+                         
                         for( ClientHandler i: clients ){
+                            
                             String names =  "Name : " + i.clientName + ", UserName : " + i.userName ;
+                            
                             System.out.println("Server theke jacce " + names );
+                            
                             allUsers.add( names );
                         }
                         
@@ -104,53 +106,42 @@ public class ClientHandler extends Thread{
                         objectOutput.writeObject(allUsers);
                         
                     }else if("Accecpt Friend Request".equals(operation) ){
+                        
                         System.out.println("asche balsal");
+                        
                         String name = inFromClient.readLine();
+                        
                         System.out.println("name " + name);
+                        
                         addFrineds( name );
+                        
                         outToClient.writeBytes("You are now friend with " + name + '\n' );
+                        
                         sendConfirmation( name );
+                        
                     }else if( "Send Friend Request".equals(operation) ){
+                        
                         String name = inFromClient.readLine();
+                        
                         addFrinedRequest( name );
+                        
                     }else if( "Unicast".equals(operation) ){
+                        
                         String user = inFromClient.readLine();
+                        
                         String msg = inFromClient.readLine();
+                        
                         sendMessage( user, msg );
+                        
                         outToClient.writeBytes("Message has been sent."  + '\n' );
                     }
-
-                    //StringTokenizer tokens = new StringTokenizer( operation, ":" );
-
-                    //String msg = tokens.nextToken();
-
-                    //String client = tokens.nextToken();
-
-                    //System.out.println( msg + " " + client ) ;
-                    
-                    //System.out.println( "Send msg from " + clientName + " to " + client ) ;
-                    
-                    
-
-//                    for( ClientHandler c: clients ){
-//                        if(  c.clientName.equals(client) ){
-//
-//                            DataOutputStream outTo = new DataOutputStream(c.connectionSocket.getOutputStream() );
-//
-//                            outTo.writeBytes("From " + clientName + " : " + msg +  '\n' );
-//                        }
-//                    }
 
                 }
 
             } catch (IOException ex) {
                 Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
-        
+
     }
     
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
 }
