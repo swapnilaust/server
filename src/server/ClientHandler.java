@@ -154,6 +154,15 @@ public class ClientHandler extends Thread{
         writer.close();
     }
     
+    void removeUser(){
+        for( ClientHandler i: clients ){
+            if( i.userName.equals(userName) ){
+                clients.remove(i);
+                break;
+            }
+        }
+    }
+    
 
     
     public void run(){
@@ -235,6 +244,17 @@ public class ClientHandler extends Thread{
                         broadcasting( msg );
                         
                         //outToClient.writeBytes("Message has been sent."  + '\n' );
+                    }else if( "log out".equals(operation) ){
+                        
+                        System.out.println("asche logout");
+                        
+                        removeUser();
+                        
+                        outToClient.writeBytes("Successfullt Logged Out."  + '\n' );
+                        
+                        break;
+                        
+                        
                     }
 
                 }
