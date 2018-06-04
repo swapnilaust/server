@@ -287,6 +287,38 @@ public class ClientHandler extends Thread{
         rewriteChatList(allMsg);
     }
     
+    ArrayList<String> showChatHistory()throws IOException{
+        ArrayList<String> allMessage = new ArrayList<String>();
+
+        FileReader inputFile = null;
+        
+        inputFile = new FileReader("message.txt");
+        
+        Scanner parser = new Scanner(inputFile);
+        
+        while (parser.hasNextLine()){
+            
+            String line = parser.nextLine();
+            
+            if( "".equals(line) )continue;
+            
+            StringTokenizer tokens = new StringTokenizer( line, ":" );
+            
+            String type = tokens.nextToken();
+                        
+            String from = tokens.nextToken();
+            
+            String to = tokens.nextToken();
+                        
+            String msg = tokens.nextToken();
+            
+            if( to.equals(userName) ){
+                allMessage.add("Message from " + from + " : " + msg );
+            }
+        }
+        return allMessage;
+    }
+    
 
     
     public void run(){
@@ -431,6 +463,12 @@ public class ClientHandler extends Thread{
                         
                         outToClient.writeBytes(name + " added to " + cname + '\n' );
                         
+                    }else if( "Chat History".equals(operation) ){
+                        ArrayList<String> msg = showChatHistory();
+                        
+                        for( String i: msg ){
+                            outToClient.writeBytes(i + '\n' );
+                        }
                     }
                     
 
