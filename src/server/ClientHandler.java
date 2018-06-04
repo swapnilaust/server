@@ -114,6 +114,28 @@ public class ClientHandler extends Thread{
         writer.close();
     }
     
+    void sendMessage( String name, String msg, boolean isChat )throws IOException{
+        
+        BufferedWriter writer = new BufferedWriter(new FileWriter("message.txt", true));
+        StringTokenizer tokens = new StringTokenizer(name,":");
+        while (tokens.hasMoreTokens()) {
+            String next = tokens.nextToken();
+            if( !isFriend( userName, next ) && !isChat )continue;
+            writer.write( "0:" + userName + ":" + next + ":" + msg  );
+            writer.newLine(); 
+        } 
+        writer.flush();
+        writer.close();
+    }
+    
+    void createChatRoom( String name )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("chat_list.txt", true));
+        writer.write(  name + ":" + userName );
+        writer.newLine();
+        writer.flush();
+        writer.close();
+    }
+    
     void broadcasting(String msg )throws IOException{
         
         BufferedWriter writer = new BufferedWriter(new FileWriter("message.txt", true));
@@ -163,6 +185,108 @@ public class ClientHandler extends Thread{
         }
     }
     
+    boolean findChatRoom( String name )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("message.txt", true));
+        
+        FileReader inputFile = null;
+        
+        inputFile = new FileReader("chat_list.txt");
+        
+        Scanner parser = new Scanner(inputFile);
+        
+        while (parser.hasNextLine()){
+            
+            String line = parser.nextLine();
+            
+            if( "".equals(line) )continue;
+            
+            StringTokenizer tokens = new StringTokenizer( line, ":" );
+            
+            String cname = tokens.nextToken();
+            
+            if( cname.equals(name) ){
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    void sendToChatRoom( String name, String msg )throws IOException{
+        
+        FileReader inputFile = null;
+        
+        inputFile = new FileReader("chat_list.txt");
+        
+        Scanner parser = new Scanner(inputFile);
+        
+        while (parser.hasNextLine()){
+            
+            String line = parser.nextLine();
+            
+            if( "".equals(line) )continue;
+            
+            StringTokenizer tokens = new StringTokenizer( line, ":" );
+            
+            String cname = tokens.nextToken();
+            
+            if( cname.equals(name) ){
+                
+                while (tokens.hasMoreTokens()){
+                    
+                    String fnd = tokens.nextToken();
+                    
+                    if( fnd.equals(userName) ) continue; // comment uthaite hobe
+                    
+                    sendMessage( fnd, "From chat romm " + name + " -> " + msg, true );
+                }
+                    
+            }
+        }
+    }
+    
+    void rewriteChatList( ArrayList<String> allMsg )throws IOException{
+        BufferedWriter writer = new BufferedWriter(new FileWriter("chat_list.txt", false));
+        for( String i: allMsg ){
+            writer.write( i );
+            writer.newLine();
+        }
+        writer.flush();
+        writer.close();
+        
+    }
+    
+    void addFriendToRoom( String chatName, String fname )throws IOException{
+        
+        ArrayList<String> allMsg = new ArrayList<String>();
+        
+        FileReader inputFile = null;
+        
+        inputFile = new FileReader("chat_list.txt");
+        
+        Scanner parser = new Scanner(inputFile);
+        
+        while (parser.hasNextLine()){
+            
+            String line = parser.nextLine();
+            
+            if( "".equals(line) )continue;
+            
+            StringTokenizer tokens = new StringTokenizer( line, ":" );
+            
+            String cname = tokens.nextToken();
+            
+            if( cname.equals(chatName) ){
+                line += ":" + fname;
+            }
+            
+            allMsg.add( line );
+        }
+        
+        rewriteChatList(allMsg);
+    }
+    
 
     
     public void run(){
@@ -177,6 +301,8 @@ public class ClientHandler extends Thread{
                     BufferedReader inFromClient = new BufferedReader( new InputStreamReader(connectionSocket.getInputStream()));
 
                     String operation = inFromClient.readLine();
+                    
+                    System.out.println("opp " + operation);
 
                     if( "Online User Lists".equals(operation)){
                         
@@ -199,7 +325,7 @@ public class ClientHandler extends Thread{
                         
                     }else if("Accecpt Friend Request".equals(operation) ){
                         
-                        System.out.println("asche balsal");
+                        
                         
                         String name = inFromClient.readLine();
                         
@@ -255,7 +381,58 @@ public class ClientHandler extends Thread{
                         break;
                         
                         
+                    }else if( "Create Chat Room".equals(operation) ){
+                        
+                        String name = inFromClient.readLine();
+                        
+                        createChatRoom(name);
+                        
+                        outToClient.writeBytes("Created chat Room : "  + name +  '\n' );
+                        
+                    }else if( "Open Chat Room".equals(operation) ){
+                        
+                        String name = inFromClient.readLine();
+                        
+                        if( findChatRoom( name ) ){
+                            
+                            System.out.println("asche chat");
+
+                            String msg = inFromClient.readLine();
+                            
+                            System.out.println("msg : " + msg   );
+                            
+                            while( !"Exit Chat Room".equals(msg) ){
+                                
+                                System.out.println("chat kori!");
+      
+                                sendToChatRoom( name, msg );
+                                
+                                msg = inFromClient.readLine();
+                                
+                                System.out.println("msg : " + msg   );
+                            }
+                            System.out.println("Chat Room Closed!" );
+                            outToClient.writeBytes("chat room closed!" + '\n' );
+                            
+                        }else{
+                            outToClient.writeBytes("Chat Room not found!" + '\n' );
+                        }
+                        
+                    }else if( "Add Friend to Chat Room".equals(operation) ){
+                       
+                        
+                        String cname = inFromClient.readLine();
+                        
+                        String name = inFromClient.readLine();
+                        
+                        System.out.println("aaa " + cname + " " + name  );
+                        
+                        addFriendToRoom( cname, name );
+                        
+                        outToClient.writeBytes(name + " added to " + cname + '\n' );
+                        
                     }
+                    
 
                 }
 
